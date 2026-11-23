@@ -952,8 +952,8 @@ function searchArchive() {
     // Nadir: images/nadir.png
     // Vivisection: images/vivisection.png
     const filename = normalize(record.aliases[0]) === "nadir"
-      ? "images/nadir.png"
-      : "images/vivisection.png";
+      ? "nadir.png"
+      : "vivisection.png";
     img.src = filename;
     img.alt = record.aliases[0] + " archive image";
     img.onerror = () => {
