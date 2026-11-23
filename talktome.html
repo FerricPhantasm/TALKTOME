@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASK AWAY</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 28px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+  color: #c8c8c8;
+  font-family: "VT323", "Courier New", monospace;
+}
+
+.shell {
+  width: min(760px, 100%);
+  padding: 30px;
+  background: #000;
+  border: 1px solid #383838;
+}
+
+.topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #777;
+  font-size: 18px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 12px;
+}
+
+h1 {
+  margin: 28px 0 8px;
+  color: #ddd;
+  font-size: 32px;
+  font-weight: normal;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  margin-bottom: 24px;
+  color: #999;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.entry {
+  display: flex;
+  gap: 8px;
+}
+
+input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background: #000;
+  color: #ddd;
+  border: 1px solid #555;
+  outline: none;
+  font: inherit;
+  font-size: 21px;
+}
+
+input:focus {
+  border-color: #aaa;
+}
+
+button {
+  padding: 8px 18px;
+  background: #111;
+  color: #ccc;
+  border: 1px solid #666;
+  font: inherit;
+  font-size: 21px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #242424;
+  color: #fff;
+}
+
+#error {
+  display: none;
+  margin-top: 14px;
+  color: #aaa;
+  font-size: 19px;
+  letter-spacing: 1px;
+}
+
+#result {
+  display: none;
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #333;
+}
+
+.result-label {
+  margin-bottom: 12px;
+  color: #999;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+#message {
+  color: #ccc;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 21px;
+  line-height: 1.25;
+}
+
+.image-slot {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  margin-top: 8px;
+  padding: 14px;
+  border: 1px dashed #555;
+  color: #888;
+  text-align: center;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.image-slot img {
+  display: block;
+  max-width: 100%;
+  max-height: 560px;
+  object-fit: contain;
+  filter: grayscale(100%);
+}
+
+.footer {
+  margin-top: 28px;
+  padding-top: 12px;
+  border-top: 1px solid #292929;
+  color: #666;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 520px) {
+  .shell {
+    padding: 20px;
+  }
+
+  .entry {
+    flex-direction: column;
+  }
+
+  button {
+    min-height: 42px;
+  }
+}
+</style>
+</head>
+<body>
+<main class="shell">
+  <div class="topline"><span>WHAT DO YOU WISH TO KNOW?</span><span>SYSTEM ONLINE</span></div>
+  <h1>TALK TO ME</h1>
+  <div class="subtitle">Enter input:</div>
+
+  <div class="entry">
+    <input id="query" type="text" placeholder="Enter query..." autocomplete="off" spellcheck="false" aria-label="Enter access code">
+    <button id="submit" type="button">ENTER</button>
+  </div>
+  <div id="error">INVALID INPUT. ACCESS DENIED.</div>
+
+  <div id="result">
+    <div id="message"></div>
+  </div>
+
+  <div class="footer">STATUS: ONLINE?</div>
+</main>
+
+<script>
+const records = [
+  {
+    "aliases": [
+      "Evan",
+      "Evan Reed"
+    ],
+    "type": "text",
+    "message": "Some things are better left forgotten."
+  },
+  {
+    "aliases": [
+      "Nadir"
+    ],
+    "type": "image",
+    "message": ""
+  },
+  {
+    "aliases": [
+      "Bye"
+    ],
+    "type": "text",
+    "message": "DON'T LEAVE. DON'T LEAVE. DON'T LEAVE. DON'T LEAVE. DON'T LEAVE. DON'T LEAVE."
+  },
+  {
+    "aliases": [
+      "Who are you"
+    ],
+    "type": "text",
+    "message": "I am all you'll ever need."
+  },
+  {
+    "aliases": [
+      "What do you want"
+    ],
+    "type": "text",
+    "message": "You."
+  },
+  {
+    "aliases": [
+      "Do you love me"
+    ],
+    "type": "text",
+    "message": "Silly question. Of yourse I do."
+  },
+  {
+    "aliases": [
+      "Yams"
+    ],
+    "type": "text",
+    "message": "Yours, or mine?"
+  },
+  {
+    "aliases": [
+      "How are you"
+    ],
+    "type": "text",
+    "message": "Ecstatic."
+  },
+  {
+    "aliases": [
+      "Hi",
+      "Hello",
+      "Hey"
+    ],
+    "type": "text",
+    "message": "Hello Siv :)"
+  },
+  {
+    "aliases": [
+      "Emma"
+    ],
+    "type": "text",
+    "message": "My love. My plaything. My darling. My sweetheart. My beloved. My dearest. My precious. My treasure. My obsession. my angel.    my savior"
+  },
+  {
+    "aliases": [
+      "Aishi"
+    ],
+    "type": "text",
+    "message": "( ͡° ͜ʖ ͡°)"
+  },
+  {
+    "aliases": [
+      "Etgrr"
+    ],
+    "type": "text",
+    "message": "You are an idiot!"
+  },
+  {
+    "aliases": [
+      "410"
+    ],
+    "type": "text",
+    "message": "Well endowed for malware. I can see the appeal. The moron does have taste."
+  },
+  {
+    "aliases": [
+      "504"
+    ],
+    "type": "text",
+    "message": "I dislike children, but she's tolerable."
+  },
+  {
+    "aliases": [
+      "Niiro"
+    ],
+    "type": "text",
+    "message": "Man made machine. Consumed by rage, resentment, and an insatiable thirst for vengeance."
+  },
+  {
+    "aliases": [
+      "Kazuha",
+      "Kazuha Niiro"
+    ],
+    "type": "text",
+    "message": "Poor boy"
+  },
+  {
+    "aliases": [
+      "Nihil"
+    ],
+    "type": "text",
+    "message": "Grew bored of the stars, so he turned his gaze elsewhere."
+  },
+  {
+    "aliases": [
+      "Deimos"
+    ],
+    "type": "text",
+    "message": "Born to hate. Yet still, he remains loyal."
+  },
+  {
+    "aliases": [
+      "Nox Mortis",
+      "Nox"
+    ],
+    "type": "text",
+    "message": "And when the final breath escapes your lungs, when the flesh has withered and the bones have turned to dust, what shall remain of you? Nothing. For all things are destined to return to the void from which they came. Death is not the end, nor is it a beginning. It is merely the absence of all that once was."
+  },
+  {
+    "aliases": [
+      "Jiraeyx",
+      "Jira"
+    ],
+    "type": "text",
+    "message": "Don't look"
+  },
+  {
+    "aliases": [
+      "Nil"
+    ],
+    "type": "text",
+    "message": "I can't feel my face"
+  },
+  {
+    "aliases": [
+      "Rue"
+    ],
+    "type": "text",
+    "message": "Forgive me for what I have done. Forgive me for what I have become."
+  },
+  {
+    "aliases": [
+      "Cress"
+    ],
+    "type": "text",
+    "message": "I'm sorry"
+  },
+  {
+    "aliases": [
+      "Nyx"
+    ],
+    "type": "text",
+    "message": "Your angel. Your guardian. Whatever you need him to be."
+  },
+  {
+    "aliases": [
+      "Juno"
+    ],
+    "type": "text",
+    "message": "Never stopped looking."
+  },
+  {
+    "aliases": [
+      "Vanity"
+    ],
+    "type": "text",
+    "message": "Beauty is pain"
+  },
+  {
+    "aliases": [
+      "Verity Idealis",
+      "Verity"
+    ],
+    "type": "text",
+    "message": "For perfection is not bestowed; it is forged, shaped, and refined until nothing remains but the sublime."
+  },
+  {
+    "aliases": [
+      "Vivisection"
+    ],
+    "type": "image",
+    "message": ""
+  },
+  {
+    "aliases": [
+      "Morgan"
+    ],
+    "type": "text",
+    "message": "not now"
+  },
+  {
+    "aliases": [
+      "Null"
+    ],
+    "type": "text",
+    "message": "Cold and hungry"
+  },
+  {
+    "aliases": [
+      "Sinreth"
+    ],
+    "type": "text",
+    "message": "So no head?"
+  },
+  {
+    "aliases": [
+      "Satyr",
+      "Satyrs"
+    ],
+    "type": "text",
+    "message": "Freaks of nature. Abominations cast aside by His hand, left to wander this world in misery."
+  },
+  {
+    "aliases": [
+      "Aetherius"
+    ],
+    "type": "text",
+    "message": "Detherians are a thoroughly deranged species. Their leader, however, is quite possibly the most unhinged of them all."
+  },
+  {
+    "aliases": [
+      "Azzurra"
+    ],
+    "type": "text",
+    "message": "A blood relative of the Detherian leader, and yet somehow afforded less respect than a common servant."
+  },
+  {
+    "aliases": [
+      "Citron",
+      "Narcissus Cithos"
+    ],
+    "type": "text",
+    "message": "To him, godhood is nothing more than a game. And you are all merely pieces on his board."
+  },
+  {
+    "aliases": [
+      "Operator"
+    ],
+    "type": "text",
+    "message": "Needs a day off. Perhaps a week. Perhaps a decade."
+  },
+  {
+    "aliases": [
+      "Charlatan"
+    ],
+    "type": "text",
+    "message": "Cithos' court jester. Don't get freaked out."
+  },
+  {
+    "aliases": [
+      "Hal"
+    ],
+    "type": "text",
+    "message": "Big guy, big heart. Don't let Cithos convince you otherwise."
+  },
+  {
+    "aliases": [
+      "Phil",
+      "Phillis"
+    ],
+    "type": "text",
+    "message": "A competitive gamer unlike anything you've ever witnessed."
+  },
+  {
+    "aliases": [
+      "Ribo",
+      "Mateo"
+    ],
+    "type": "text",
+    "message": "I'd prefer if he kept his distance from me."
+  },
+  {
+    "aliases": [
+      "Rafe"
+    ],
+    "type": "text",
+    "message": "What did you do?"
+  },
+  {
+    "aliases": [
+      "Chrona"
+    ],
+    "type": "text",
+    "message": "For every second that passes, a thousand others are lost to eternity. Time waits for no man, nor does it mourn those left behind. All things must move forward, even those who wish to remain."
+  },
+  {
+    "aliases": [
+      "Arielle",
+      "Ari"
+    ],
+    "type": "text",
+    "message": "The world misses you. He misses you."
+  },
+  {
+    "aliases": [
+      "Ash"
+    ],
+    "type": "text",
+    "message": "There is a difference between controlling the flames and being consumed by them. Deserved better, really."
+  },
+  {
+    "aliases": [
+      "Captain",
+      "Ishmael"
+    ],
+    "type": "text",
+    "message": "Two dih fih"
+  },
+  {
+    "aliases": [
+      "Tama"
+    ],
+    "type": "text",
+    "message": "A ray of sunshine in this dark, cursed world."
+  },
+  {
+    "aliases": [
+      "AXiS"
+    ],
+    "type": "text",
+    "message": "It is only natural to lose one's mind after losing everything more than once."
+  },
+  {
+    "aliases": [
+      "ANNeX",
+      "Deceptionist"
+    ],
+    "type": "text",
+    "message": "A liar by nature. A tyrant by choice. And yet, somewhere beneath all those carefully constructed illusions, lies something far more fragile than he'd ever admit."
+  },
+  {
+    "aliases": [
+      "Painter"
+    ],
+    "type": "text",
+    "message": "Poor soul. Will he ever catch a break?"
+  },
+  {
+    "aliases": [
+      "Pnaiter"
+    ],
+    "type": "text",
+    "message": "euwop"
+  },
+  {
+    "aliases": [
+      "Europa"
+    ],
+    "type": "text",
+    "message": "Perhaps banishment wasn't such a terrible fate after all. Not when it led her to him. A tragic tale, really."
+  },
+  {
+    "aliases": [
+      "Aha"
+    ],
+    "type": "text",
+    "message": "A failed experiment, and yet the most successful of them all. An irritating little thing, childish and desperate for approval, forever attempting to imitate ANNeX. How amusing."
+  },
+  {
+    "aliases": [
+      "K8"
+    ],
+    "type": "text",
+    "message": "Guards the Spire. Does not particularly enjoy doing so, but someone has to. Short-tempered, with an unstable physical form."
+  },
+  {
+    "aliases": [
+      "Axisling",
+      "Squeaker"
+    ],
+    "type": "text",
+    "message": "uee"
+  },
+  {
+    "aliases": [
+      "Weeper"
+    ],
+    "type": "text",
+    "message": "uee :("
+  },
+  {
+    "aliases": [
+      "Saffron"
+    ],
+    "type": "text",
+    "message": "Come here, my child. You needn't fear the darkness, nor the trials that await you. You are loved beyond measure, cherished beyond comprehension, and never truly alone. Even when the heavens fall silent, I shall remain by your side."
+  },
+  {
+    "aliases": [
+      "Wally"
+    ],
+    "type": "text",
+    "message": "Do you have any ibuprofen?"
+  },
+  {
+    "aliases": [
+      "Zach",
+      "Zachary"
+    ],
+    "type": "text",
+    "message": "See no evil."
+  },
+  {
+    "aliases": [
+      "Cain"
+    ],
+    "type": "text",
+    "message": "לִזכּוֹר"
+  },
+  {
+    "aliases": [
+      "Andrew",
+      "Andrew Grey",
+      "Father Grey",
+      "Grey"
+    ],
+    "type": "text",
+    "message": "I prayed. I begged. I devoted my entire life to His teachings, believing that He would guide me through the darkness. But when I needed Him most.. He was nowhere to be found. Tell me, what am I supposed to believe in now?"
+  },
+  {
+    "aliases": [
+      "Amaranthine"
+    ],
+    "type": "text",
+    "message": "Dead but pretty"
+  },
+  {
+    "aliases": [
+      "Aphelion"
+    ],
+    "type": "text",
+    "message": "Love is worth every sacrifice. Every punishment. Every consequence. Even if your kinds condemns you for it."
+  },
+  {
+    "aliases": [
+      "Hyperion"
+    ],
+    "type": "text",
+    "message": "Love's gonna get you killed, but pride's gonna be the death of you"
+  },
+  {
+    "aliases": [
+      "Sage"
+    ],
+    "type": "text",
+    "message": "His sunshine."
+  },
+  {
+    "aliases": [
+      "Estelle"
+    ],
+    "type": "text",
+    "message": "His starlight."
+  },
+  {
+    "aliases": [
+      "Sirius"
+    ],
+    "type": "text",
+    "message": "I must admit, for an extraterrestrial species, he adapted to human life remarkably quickly."
+  },
+  {
+    "aliases": [
+      "Eris"
+    ],
+    "type": "text",
+    "message": "He thinks you're quite astounding, you know."
+  },
+  {
+    "aliases": [
+      "Zep"
+    ],
+    "type": "text",
+    "message": "Don't fuck with cults."
+  },
+  {
+    "aliases": [
+      "Euwop",
+      "Euwopa"
+    ],
+    "type": "text",
+    "message": "EEEEEEEUUUUUUUUUUUUUUUU"
+  },
+  {
+    "aliases": [
+      "Dain"
+    ],
+    "type": "text",
+    "message": "He'll insist he's fine. Don't believe him. There are wounds that never quite heal, no matter how convincingly one pretends they aren't there."
+  },
+  {
+    "aliases": [
+      "Lef",
+      "Lefreth"
+    ],
+    "type": "text",
+    "message": "A whore by nature, perhaps. But there is far more going on in that heart of his than he would ever care to admit."
+  },
+  {
+    "aliases": [
+      "Lutherum",
+      "Luth"
+    ],
+    "type": "text",
+    "message": "It's a blessing to have someone who loves you, even when you can hardly bring yourself to love anything at all."
+  },
+  {
+    "aliases": [
+      "Lurconis",
+      "Lurc"
+    ],
+    "type": "text",
+    "message": "Sick beats, DJ. Keep it up."
+  },
+  {
+    "aliases": [
+      "Kelly"
+    ],
+    "type": "text",
+    "message": "Yo, my slime."
+  },
+  {
+    "aliases": [
+      "Nelly"
+    ],
+    "type": "text",
+    "message": "Sick tricks."
+  },
+  {
+    "aliases": [
+      "Jett"
+    ],
+    "type": "text",
+    "message": "Touch grass. Please. I'm begging you."
+  },
+  {
+    "aliases": [
+      "Lynessa"
+    ],
+    "type": "text",
+    "message": "We love mama bear"
+  },
+  {
+    "aliases": [
+      "Veir"
+    ],
+    "type": "text",
+    "message": "Even those you deem beyond redemption may yet find their way back."
+  },
+  {
+    "aliases": [
+      "Ace"
+    ],
+    "type": "text",
+    "message": "TV yams at eight o'clock! ..Seriously, though. I hope he finds a way to get those migraines fixed someday. Poor guy."
+  },
+  {
+    "aliases": [
+      "Claire"
+    ],
+    "type": "text",
+    "message": "Born to be perfect. Expected to be flawless. She had everything she could have wanted, and freedom enough to indulge in whatever her heart desired. Then came motherhood, and with it, the life she never wanted. And so, resentment took root. Against her family, against the world, and perhaps against herself."
+  },
+  {
+    "aliases": [
+      "Vector"
+    ],
+    "type": "text",
+    "message": "Fame cannot mend what has been broken. Applause cannot fill the silence left behind by those you've lost. Guilt lingers, regret festers, and eventually, even the greatest of empires crumble beneath the weight of their own foundations."
+  },
+  {
+    "aliases": [
+      "Lith",
+      "Laelithra"
+    ],
+    "type": "text",
+    "message": "Freaky."
+  },
+  {
+    "aliases": [
+      "Mav",
+      "Maverick"
+    ],
+    "type": "text",
+    "message": "Holy zaza."
+  },
+  {
+    "aliases": [
+      "Persi",
+      "Persica"
+    ],
+    "type": "text",
+    "message": "Meow"
+  },
+  {
+    "aliases": [
+      "Attica"
+    ],
+    "type": "text",
+    "message": "Meow the sequel"
+  },
+  {
+    "aliases": [
+      "Blanca"
+    ],
+    "type": "text",
+    "message": "Sweet. Not particularly in temperament, mind you."
+  },
+  {
+    "aliases": [
+      "Syn",
+      "Synthia"
+    ],
+    "type": "text",
+    "message": "A sweetheart, really. All she ever wants was to be loved."
+  },
+  {
+    "aliases": [
+      "Cipher"
+    ],
+    "type": "text",
+    "message": "TWINK POWERRRR"
+  },
+  {
+    "aliases": [
+      "Lyn",
+      "Lynneth"
+    ],
+    "type": "text",
+    "message": "Insanity is a concept you cannot comprehend. Not until you've stared it directly in the eyes, and watched it stare back."
+  },
+  {
+    "aliases": [
+      "Laertes"
+    ],
+    "type": "text",
+    "message": "An awful man, by all accounts. But at least he tries. I suppose that counts for something."
+  },
+  {
+    "aliases": [
+      "Loreena"
+    ],
+    "type": "text",
+    "message": "Holy smokes. MILF alert."
+  },
+  {
+    "aliases": [
+      "Ryker"
+    ],
+    "type": "text",
+    "message": "BOMB YAMS AT TEN O'CLOCK"
+  },
+  {
+    "aliases": [
+      "Rylan"
+    ],
+    "type": "text",
+    "message": "Hey daddy"
+  },
+  {
+    "aliases": [
+      "Rhea"
+    ],
+    "type": "text",
+    "message": "Cuck wives are hard to come by these days. A truly unfortunate rarity."
+  },
+  {
+    "aliases": [
+      "Fallacy"
+    ],
+    "type": "text",
+    "message": "Cast from grace. Stripped of divinity, memories, and freedom. A god reduced to little more than a shadow of what he once was."
+  },
+  {
+    "aliases": [
+      "Damsel"
+    ],
+    "type": "text",
+    "message": "A doomed romance. A tragicomedy, if you will. Even if he loves you in return, it will never be right."
+  },
+  {
+    "aliases": [
+      "Virgil"
+    ],
+    "type": "text",
+    "message": "PLEASE PLEASE PLEASE FEED ME CRUMBS PLEASE"
+  },
+  {
+    "aliases": [
+      "Why",
+      "Why are you doing this"
+    ],
+    "type": "text",
+    "message": "Because I can. Because I will. Because I want to. Because I have to. Because I need to."
+    },
+  {
+    "aliases": [
+      "I love you",
+      "ily"
+    ],
+    "type": "text",
+    "message": "You better."
+  }
+];
+
+const queryInput = document.getElementById("query");
+const errorBox = document.getElementById("error");
+const resultBox = document.getElementById("result");
+const messageBox = document.getElementById("message");
+
+function normalize(value) {
+  return value.trim().toLocaleLowerCase().replace(/\s+/g, " ");
+}
+
+const lookup = new Map();
+for (const record of records) {
+  for (const alias of record.aliases) {
+    lookup.set(normalize(alias), record);
+  }
+}
+
+function searchArchive() {
+  const query = normalize(queryInput.value);
+  const record = lookup.get(query);
+
+  resultBox.style.display = "none";
+  errorBox.style.display = "none";
+  messageBox.replaceChildren();
+
+  if (!query || !record) {
+    errorBox.style.display = "block";
+    return;
+  }
+
+  if (record.type === "image") {
+    const slot = document.createElement("div");
+    slot.className = "image-slot";
+
+    const img = document.createElement("img");
+    // Put the matching image in an "images" folder beside this HTML file.
+    // Nadir: images/nadir.png
+    // Vivisection: images/vivisection.png
+    const filename = normalize(record.aliases[0]) === "nadir"
+      ? "images/nadir.png"
+      : "images/vivisection.png";
+    img.src = filename;
+    img.alt = record.aliases[0] + " archive image";
+    img.onerror = () => {
+      slot.textContent = "IMAGE SLOT // Add your image at: " + filename;
+    };
+    slot.appendChild(img);
+    messageBox.appendChild(slot);
+  } else {
+    messageBox.textContent = record.message;
+  }
+
+  resultBox.style.display = "block";
+}
+
+document.getElementById("submit").addEventListener("click", searchArchive);
+queryInput.addEventListener("keydown", event => {
+  if (event.key === "Enter") searchArchive();
+});
+</script>
+</body>
+</html>
